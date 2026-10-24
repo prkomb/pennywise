@@ -1,69 +1,120 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
+import BankBadge from "@/components/BankBadge";
+import AppShell from "@/components/dashboard/AppShell";
+import UploadStatementButton from "@/components/UploadStatementButton";
+import { loadRecentUploads } from "@/lib/dashboard-data";
+
+const STEPS = [
+  { title: "Upload", body: "Drop a CSV export from Monzo or Revolut. We detect the bank from its columns." },
+  { title: "Categorize", body: "Every row gets a category and a label: essential, want or unnecessary." },
+  { title: "Review", body: "See where your money goes, compare against a 50/30/20 plan and get advice." },
+];
+
+const BANKS = ["monzo", "revolut"];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <AppShell active="/">
+      <div className="flex flex-col gap-6">
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs text-[var(--text-secondary)]">Welcome</p>
+            <h1 className="text-3xl font-medium tracking-tight">Bank Statements</h1>
+          </div>
+          <Link
+            href="/dashboard"
+            className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-white"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Open dashboard
+          </Link>
+        </header>
+
+        <div className="grid gap-5 lg:grid-cols-[1.8fr_1fr]">
+          <Card title="Upload a statement" badge="CSV">
+            <UploadStatementButton />
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-[var(--text-secondary)]">Supported banks:</span>
+              <ul className="flex flex-wrap items-center gap-2">
+                {BANKS.map((bank) => (
+                  <li
+                    key={bank}
+                    className="flex h-8 items-center rounded-full border border-[var(--border)] bg-[var(--surface-2)] pl-1.5 pr-3.5 font-medium leading-none text-[var(--text-primary)]"
+                  >
+                    <BankBadge bank={bank} size={20} showName />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Card>
+
+          <Card title="Uploaded statements">
+            <Suspense fallback={<p className="text-sm text-[var(--text-secondary)]">Loading...</p>}>
+              <UploadedList />
+            </Suspense>
+          </Card>
         </div>
-      </main>
-    </div>
+
+        <Card title="How it works">
+          <ol className="grid gap-4 sm:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <li key={step.title} className="flex gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-sm font-medium text-[var(--accent)]"
+                >
+                  {i + 1}
+                </span>
+                <span>
+                  <span className="block text-sm font-medium">{step.title}</span>
+                  <span className="block text-sm text-[var(--text-secondary)]">{step.body}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Card>
+      </div>
+    </AppShell>
+  );
+}
+
+async function UploadedList() {
+  const items = await loadRecentUploads();
+  if (items.length === 0) {
+    return <p className="text-sm text-[var(--text-secondary)]">Nothing uploaded yet.</p>;
+  }
+  return (
+    <ul className="flex flex-col gap-4">
+      {items.map((u) => (
+        <li key={String(u._id)} className="flex items-center gap-3">
+          <BankBadge bank={u.bank} size={36} />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium">{u.fileName ?? "Statement"}</span>
+            <span className="block text-xs capitalize text-[var(--text-secondary)]">
+              {u.bank} · {u.rowCount} rows
+            </span>
+          </span>
+          <span className="text-xs text-[var(--text-secondary)]">
+            {u.uploadedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Card({ title, badge, children }: { title: string; badge?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-3xl bg-[var(--surface-1)] p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-medium">{title}</h2>
+        {badge && (
+          <span className="rounded-md bg-[var(--accent-soft)] px-2.5 py-1 text-xs text-[var(--accent)]">
+            {badge}
+          </span>
+        )}
+      </div>
+      {children}
+    </section>
   );
 }

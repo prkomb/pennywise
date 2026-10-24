@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,15 +13,112 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Theme: follows the OS unless the user picked one (data-theme="light" | "dark" on <html>). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dashboard chart tokens (validated categorical set, light + dark). */
+.viz-root {
+  --page: #f3f4ff;
+  --accent: #4d2cf2;
+  --accent-soft: #e9e6ff;
+  --accent-grad: linear-gradient(135deg, #4d2cf2 0%, #8b7cff 100%);
+  --surface-1: #fcfcfb;
+  --surface-2: #f4f3f0;
+  --border: #e3e2dd;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --neutral: #a8a7a1;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #6250d6;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .viz-root {
+    --page: #0f0f14;
+    --accent: #8b7cff;
+    --accent-soft: #2a2650;
+    --surface-1: #1a1a19;
+    --surface-2: #232321;
+    --border: #383835;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --neutral: #6b6a65;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+  }
+}
+
+:root[data-theme="dark"] .viz-root {
+  --page: #0f0f14;
+  --accent: #8b7cff;
+  --accent-soft: #2a2650;
+  --surface-1: #1a1a19;
+  --surface-2: #232321;
+  --border: #383835;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --neutral: #6b6a65;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+}
+
+/* Tailwind v4 resets buttons to the default cursor; restore the pointer on clickable controls. */
+button:not(:disabled),
+[role="button"],
+[role="radio"],
+select,
+summary {
+  cursor: pointer;
+}
+
+/* Category chart entrance: slices pop in one after another, legend bars grow from the left. */
+@keyframes pie-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.pie-in { animation: pie-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bar-grow { transform-origin: left; animation: bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .pie-in, .bar-grow { animation: none; }
 }
